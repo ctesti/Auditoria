@@ -1,0 +1,91 @@
+fmod PEDIDO is
+ pr NAT .
+ sort Pedido .
+
+ op pv : -> Pedido [ctor] .
+ op pedido : Nat Nat Nat -> Pedido [ctor] .
+
+ vars idCarniceria cantVacuno cantCerdo: Nat .
+ var pedido : Pedido .
+
+
+endfm
+
+
+fmod FURGONETA is
+ pr PEDIDO .
+ sorts Furgo Estado .
+
+ op fv : -> Furgo [ctor] .
+ op furgo : Nat Nat Nat Nat Estado -> Furgo [ctor] .
+
+ vars reparto vuelta esperando : Estado .
+ vars idCarniceria idGranja cantVacuno cantCerdo: Nat .
+ var furgo : Furgo .
+
+
+endfm
+
+
+fmod GRANJA is
+ pr FURGONETA .
+ pr LIST .
+ pr BOOL .
+
+ sorts Granja Animal AnimalList PedidosList Hueco.
+ subsort Animal < AnimalList .
+ subsort Pedido < PedidosList .
+
+ op gv : -> Granja [ctor] .
+ op alistv : -> AnimalList [ctor] .
+ op _ _ : AnimalList AnimalList : AnimalList [assoc] .
+ op plistv : -> PedidosList [ctor] .
+ op _ _ : PedidosList PedidosList : PedidosList [assoc] .
+ op <_,_> : Furgo Bool -> Hueco [ctor] .
+
+ op granja : AnimalList Nat Hueco PedidosList -> Granja [ctor] .
+
+ var idGranja : Nat .
+ var furgoneta : Furgo .
+ vars vaca cerdo : Animal .
+ var animList : AnimalList .
+ var pedList : PedidosList .
+
+
+endfm
+
+
+fmod CLIENTES is
+ pr NAT .
+ sort Cliente .
+
+ op cv : -> Cliente [ctor] .
+ op cliente : Nat Nat -> Cliente [ctor] .
+
+ vars cantCerdo cantVacuno : Nat .
+
+
+endfm
+
+
+fmod CARNICERIAS is
+ pr CLIENTES .
+ pr FURGONETA .
+ pr GRANJA .
+
+ sorts Carniceria Estado ColaClientes Hueco LibretaGranjas .
+
+ op libretav : -> LibretaGranjas [ctor] .
+ op _ _ : LibretaGranjas LibretaGranjas : LibretaGranjas [assoc] .
+ op <_,_> : Furgo Bool -> Hueco [ctor] .
+ op cv : -> Carniceria [ctor] .
+ op carniceria : Nat Estado Nat Nat ColaClientes Hueco LibretaGranjas -> Carniceria [ctor] .
+ 
+
+ vars cantCerdo cantVacuno idCarniceria: Nat .
+ vars abierta cerrada : Estado .
+
+endfm
+
+
+
