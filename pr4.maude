@@ -38,12 +38,14 @@ fmod GRANJA is
 
  op gv : -> Granja [ctor] .
  op alistv : -> AnimalList [ctor] .
- op animalList(_,_) : AnimalList AnimalList -> AnimalList [assoc comm] .
+ op addAnimalList : Animal AnimalList -> AnimalList [ctor] .
+ op animalList : AnimalList AnimalList -> AnimalList [assoc comm] .
  op plistv : -> PedidosList [ctor] .
- op pedidosList(_,_) : PedidosList PedidosList -> PedidosList [assoc comm] .
- op <_,_> : Furgo Bool -> Hueco [ctor] .
+ op pedidosList : PedidosList PedidosList -> PedidosList [assoc comm] .
+ op addPedidosList : Pedido PedidosList -> PedidosList [ctor] .
+ op hueco : Furgo Bool -> Hueco [ctor] .
 
- op granja(_,_,_,_): AnimalList Nat Hueco PedidosList -> Granja [ctor] .
+ op granja : AnimalList Nat Hueco PedidosList -> Granja [ctor] .
 
  var idGranja : Nat .
  var furgoneta : Furgo .
@@ -76,15 +78,16 @@ fmod CARNICERIAS is
  sorts Carniceria Estado ColaClientes Hueco LibretaGranjas .
 
  op libretav : -> LibretaGranjas [ctor] .
- op libretaGr(_,_) : LibretaGranjas LibretaGranjas -> LibretaGranjas [assoc comm] .
- op <_,_> : Furgo Bool -> Hueco [ctor] .
+ op libretaGr : LibretaGranjas LibretaGranjas -> LibretaGranjas [assoc comm] .
+ op addLibretaGr : Granja LibretaGranjas -> LibretaGranjas [ctor] .
+ op hueco : Furgo Bool -> Hueco [ctor] .
  op cv : -> Carniceria [ctor] .
  op carniceria : Nat Estado Nat Nat ColaClientes Hueco LibretaGranjas -> Carniceria [ctor] .
 
  op clientes_pop : ColaClientes -> ColaClientes .
  op primero_cola : ColaClientes -> Cliente .
- op inserta_final_cola : Cliente ColaClientes -> ColaClientes .
- op colav : -> ColaClientes [ctor] .
+ op inserta_final_cola : Cliente ColaClientes -> ColaClientes [ctor] .
+ op colav : -> ColaClientes [ctor] . 
  
 
  vars cantCerdo cantVacuno idCarniceria: Nat .
@@ -100,12 +103,12 @@ fmod CARRETERAS is
  subsort Sentido < Carretera .
 
  op carreterav : -> Carretera [ctor] .
- op carretera(_,_) : Sentido Sentido -> Carretera [ctor] .
+ op carretera : Sentido Sentido -> Carretera [ctor] .
 
  op sentidov : -> Sentido [ctor] .
  op sentido_pop : Sentido -> Sentido .
  op primero_sentido : Sentido -> Furgo .
- op inserta_final_sentido : Furgo Sentido -> Sentido .
+ op inserta_final_sentido : Furgo Sentido -> Sentido [ctor] .
  
  
  vars ida vuelta : Sentido .
@@ -121,19 +124,19 @@ fmod SISTEMA_CARNICERIAS is
 
  op listGranjav : -> ListGranja [ctor] .
  op inserta_granja : Granja ListGranja -> ListGranja [ctor] .
- op listGranja(_,_) : ListGranja ListGranja -> ListGranja [assoc comm] .
+ op listGranja : ListGranja ListGranja -> ListGranja [assoc comm] .
 
  op listCarniceriasv : -> ListCarnicerias [ctor] .
- op inserta_carniceria(_,_) : Carniceria ListCarnicerias -> ListCarnicerias [ctor] .
- op listCarnicerias(_,_) : ListCarnicerias ListCarnicerias -> ListCarnicerias [assoc comm] .
+ op inserta_carniceria : Carniceria ListCarnicerias -> ListCarnicerias [ctor] .
+ op listCarnicerias : ListCarnicerias ListCarnicerias -> ListCarnicerias [assoc comm] .
 
  op listCarreterasv : -> ListCarreteras [ctor] .
- op inserta_carretera(_,_) : Carretera ListCarreteras -> ListCarreteras [ctor] .
- op listCarreteras(_,_) : ListCarreteras ListCarreteras -> ListCarreteras [assoc comm] .
+ op inserta_carretera : Carretera ListCarreteras -> ListCarreteras [ctor] .
+ op listCarreteras : ListCarreteras ListCarreteras -> ListCarreteras [assoc comm] .
 
- op sistema(_,_,_) : ListGranja ListCarnicerias ListCarreteras -> Sistema [ctor] .
+ op sistema : ListGranja ListCarnicerias ListCarreteras -> Sistema [ctor] .
 
-
+    
 endfm 
 
 
