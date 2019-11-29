@@ -13,46 +13,53 @@ endfm
 
 
 fmod FURGONETA is
- pr PEDIDO .
- sorts Furgo Estado .
+ sorts Furgo EstadoFurgoneta .
+ pr NAT .
 
  op fv : -> Furgo [ctor] .
- op furgo : Nat Nat Nat Nat Estado -> Furgo [ctor] .
+ op furgo : Nat Nat Nat Nat EstadoFurgoneta -> Furgo [ctor] .
+ ops reparto vuelta esperando : -> EstadoFurgoneta [ctor] .
 
- vars reparto vuelta esperando : Estado .
  vars idCarniceria idGranja cantVacuno cantCerdo: Nat .
  var furgo : Furgo .
-
 
 endfm
 
 
 fmod GRANJA is
  pr FURGONETA .
- pr LIST .
+ pr PEDIDO .
  pr BOOL .
+ pr NAT .
 
- sorts Granja Animal AnimalList PedidosList Hueco .
- subsort Animal < AnimalList .
+ sorts Granja Animal AnimalList VacaList CerdoList PedidosList HuecoGranja .
+ subsort Animal < VacaList < AnimalList .
+ subsort Animal < CerdoList < AnimalList .
  subsort Pedido < PedidosList .
 
  op gv : -> Granja [ctor] .
  op alistv : -> AnimalList [ctor] .
- op addAnimalList : Animal AnimalList -> AnimalList [ctor] .
- op animalList : AnimalList AnimalList -> AnimalList [assoc comm] .
  op plistv : -> PedidosList [ctor] .
- op pedidosList : PedidosList PedidosList -> PedidosList [assoc comm] .
- op addPedidosList : Pedido PedidosList -> PedidosList [ctor] .
- op hueco : Furgo Bool -> Hueco [ctor] .
+ ops vaca cerdo : -> Animal [ctor] .
 
- op granja : AnimalList Nat Hueco PedidosList -> Granja [ctor] .
+ op __ : AnimalList AnimalList -> AnimalList [assoc ctor id: alistv] .
+ op __ : PedidosList PedidosList -> PedidosList [assoc ctor id: plistv] .
+ op hueco-granja : Furgo Bool -> HuecoGranja [ctor] .
+ op restar-animales-granja : Nat AnimalList -> AnimalList .
+ op granja : VacaList CerdoList Nat HuecoGranja PedidosList -> Granja [ctor] .
+
+ eq restar-animales-granja(0, animList) = animList .
+ ceq restar-animales-granja(animARestar, animList animal) = restar-animales-granja(sd(animARestar, 1), animList) if animARestar > 0 .
+
 
  var idGranja : Nat .
- var furgoneta : Furgo .
- vars vaca cerdo : Animal .
- var animList : AnimalList .
+ var animARestar : Nat .
+ vars animList animList' : AnimalList .
+ var animal : Animal .
  var pedList : PedidosList .
-
+ var hueco-granja : HuecoGranja .
+ 
+ 
 
 endfm
 
@@ -75,44 +82,45 @@ fmod CARNICERIAS is
  pr FURGONETA .
  pr GRANJA .
 
- sorts Carniceria Estado ColaClientes Hueco LibretaGranjas .
+ sorts Carniceria EstadoCarniceria ColaClientes HuecoCarniceria LibretaGranjas .
+ subsort Granja < LibretaGranjas .
 
  op libretav : -> LibretaGranjas [ctor] .
- op libretaGr : LibretaGranjas LibretaGranjas -> LibretaGranjas [assoc comm] .
- op addLibretaGr : Granja LibretaGranjas -> LibretaGranjas [ctor] .
- op hueco : Furgo Bool -> Hueco [ctor] .
+ op __ : LibretaGranjas LibretaGranjas -> LibretaGranjas [assoc ctor id: libretav] .
+ op hueco-carniceria : Furgo Bool -> HuecoCarniceria [ctor] .
  op cv : -> Carniceria [ctor] .
- op carniceria : Nat Estado Nat Nat ColaClientes Hueco LibretaGranjas -> Carniceria [ctor] .
+ op carniceria : Nat EstadoCarniceria Nat Nat ColaClientes HuecoCarniceria LibretaGranjas -> Carniceria [ctor] .
+ ops abierta cerrada : -> EstadoCarniceria [ctor] .
 
- op clientes_pop : ColaClientes -> ColaClientes .
- op primero_cola : ColaClientes -> Cliente .
- op inserta_final_cola : Cliente ColaClientes -> ColaClientes [ctor] .
+ op clientes-pop : ColaClientes -> ColaClientes .
+ op primero-cola : ColaClientes ~> Cliente .
+ op inserta-cliente : Cliente ColaClientes -> ColaClientes [ctor] .
  op colav : -> ColaClientes [ctor] . 
  
 
- vars cantCerdo cantVacuno idCarniceria: Nat .
- vars abierta cerrada : Estado .
+ vars cantCerdo cantVacuno idCarniceria : Nat .
+
 
 endfm
 
 
 fmod CARRETERAS is
  pr FURGONETA .
- 
+ pr NAT .
+
  sorts Carretera Sentido .
- subsort Sentido < Carretera .
 
  op carreterav : -> Carretera [ctor] .
- op carretera : Sentido Sentido -> Carretera [ctor] .
+ op carretera : Nat Nat Sentido Sentido -> Carretera [ctor] .
 
  op sentidov : -> Sentido [ctor] .
- op sentido_pop : Sentido -> Sentido .
- op primero_sentido : Sentido -> Furgo .
- op inserta_final_sentido : Furgo Sentido -> Sentido [ctor] .
+ op sentido-pop : Sentido -> Sentido .
+ op primero-sentido : Sentido ~> Furgo .
+ op inserta-furgo : Furgo Sentido -> Sentido [ctor] .
  
- 
- vars ida vuelta : Sentido .
- 
+ vars idGranja idCarniceria : Nat .
+
+
 endfm
 
 fmod SISTEMA_CARNICERIAS is
@@ -121,22 +129,69 @@ fmod SISTEMA_CARNICERIAS is
  pr CARRETERAS .
 
  sorts ListGranja ListCarnicerias ListCarreteras .
+ subsort Granja < ListGranja .
+ subsort Carniceria < ListCarnicerias .
+ subsort Carretera < ListCarreteras .
 
  op listGranjav : -> ListGranja [ctor] .
- op inserta_granja : Granja ListGranja -> ListGranja [ctor] .
- op listGranja : ListGranja ListGranja -> ListGranja [assoc comm] .
+ op __ : ListGranja ListGranja -> ListGranja [assoc ctor id: listGranjav] .
 
  op listCarniceriasv : -> ListCarnicerias [ctor] .
- op inserta_carniceria : Carniceria ListCarnicerias -> ListCarnicerias [ctor] .
- op listCarnicerias : ListCarnicerias ListCarnicerias -> ListCarnicerias [assoc comm] .
+ op __ : ListCarnicerias ListCarnicerias -> ListCarnicerias [assoc ctor id: listCarniceriasv] .
 
  op listCarreterasv : -> ListCarreteras [ctor] .
- op inserta_carretera : Carretera ListCarreteras -> ListCarreteras [ctor] .
- op listCarreteras : ListCarreteras ListCarreteras -> ListCarreteras [assoc comm] .
+ op __ : ListCarreteras ListCarreteras -> ListCarreteras [assoc ctor id: listCarreterasv] .
 
  op sistema : ListGranja ListCarnicerias ListCarreteras -> Sistema [ctor] .
 
-    
+ ops granja1 granja2 : -> Granja .
+ ops listaVacaGranja1 listaVacaGranja2 : -> VacaList .
+ ops listaCerdoGranja1 listaCerdoGranja2 : -> CerdoList . 
+ ops listaPedidos1 listaPedidos2 : -> PedidosList .
+ ops c1 c2 : -> Carniceria .
+ ops furgo1 furgo2 : -> Furgo .
+ ops pedido1 pedido2 pedido3 pedido4 : -> Pedido .
+ ops libretaGranja1 libretaGranja2 : -> LibretaGranjas .
+ ops cliente1 cliente2 cliente3 : -> Cliente .
+ ops colaClientes1 colaClientes2 : -> ColaClientes .
+ ops carretera1 carretera2 carretera3 carretera4 : -> Carretera .
+ op listaCarretera1 : -> ListCarreteras .
+ op listaGranja1 : -> ListGranja .
+ op listaCarnicerias1 : -> ListCarnicerias .
+
+ ops sistema1 .
+ eq pedido1 = pedido(1, 4, 3) .
+ eq pedido2 = pedido(2, 4, 3) .
+ eq pedido3 = pedido(1, 1, 0) .
+ eq pedido4 = pedido(2, 1, 0) .
+ eq listaPedidos1 = pedido1 pedido2 . 
+ eq listaPedidos2 = pedido3 pedido4 .
+ eq listaVacaGranja1 = vaca vaca vaca vaca vaca .
+ eq listaCerdoGranja1 = cerdo cerdo cerdo . 
+ eq listaVacaGranja2 = vaca vaca .
+ eq listaCerdoGranja2 = cerdo .
+ eq furgo1 = furgo(1, 0, 0, 0, esperando) .
+ eq furgo2 = furgo(2, 0, 0, 0, esperando) .
+ eq granja1 = granja(listaVacaGranja1, listaCerdoGranja1, 1, hueco-granja(fv, true), listaPedidos1) .
+ eq granja2 = granja(listaVacaGranja2, listaCerdoGranja2, 2, hueco-granja(fv, true), listaPedidos2) .
+ eq libretaGranja1 = granja1 granja2 .
+ eq libretaGranja2 = granja1 granja2 .
+ eq cliente1 = cliente(1, 1) .
+ eq cliente2 = cliente(0, 1) .
+ eq cliente3 = cliente(0, 2) .
+ eq colaClientes1 = inserta-cliente(cliente1, inserta-cliente(cliente2, colav)) .
+ eq colaClientes2 = inserta-cliente(cliente3, colav) .
+ eq c1 = carniceria(1, abierta, 0, 0, colaClientes1, hueco-carniceria(fv, true), libretaGranja1) .
+ eq c2 = carniceria(2, abierta, 0, 0, colaClientes2, hueco-carniceria(fv, true), libretaGranja2) .
+ eq carretera1 = carretera(1, 1, sentidov, sentidov) .
+ eq carretera2 = carretera(1, 2, sentidov, sentidov) .
+ eq carretera3 = carretera(2, 1, sentidov, sentidov) .
+ eq carretera4 = carretera(2, 2, sentidov, sentidov) .
+ eq listaCarretera1 = carretera1 carretera2 carretera3 carretera4 .
+ eq listaGranja1 = granja1 granja2 .
+ eq listaCarnicerias1 = c1 c2 .
+ eq sistema1 = sistema(listaGranja1, listaCarnicerias1, listaCarretera1) .
+
 endfm 
 
 
