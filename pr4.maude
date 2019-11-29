@@ -5,7 +5,7 @@ fmod PEDIDO is
  op pv : -> Pedido [ctor] .
  op pedido : Nat Nat Nat -> Pedido [ctor] .
 
- vars idCarniceria cantVacuno cantCerdo: Nat .
+ vars idCarniceria cantVacuno cantCerdo : Nat .
  var pedido : Pedido .
 
 
@@ -20,7 +20,7 @@ fmod FURGONETA is
  op furgo : Nat Nat Nat Nat EstadoFurgoneta -> Furgo [ctor] .
  ops reparto vuelta esperando : -> EstadoFurgoneta [ctor] .
 
- vars idCarniceria idGranja cantVacuno cantCerdo: Nat .
+ vars idCarniceria idGranja cantVacuno cantCerdo : Nat .
  var furgo : Furgo .
 
 endfm
@@ -46,18 +46,24 @@ fmod GRANJA is
  op __ : PedidosList PedidosList -> PedidosList [assoc ctor id: plistv] .
  op hueco-granja : Furgo Bool -> HuecoGranja [ctor] .
  op restar-animales-granja : Nat AnimalList -> AnimalList .
+ op tam : AnimalList -> Nat .
  op granja : VacaList CerdoList Nat HuecoGranja PedidosList -> Granja [ctor] .
 
+ eq tam(alistv) = 0 .
+ eq tam(animal animList) = s(tam(animList)) .
  eq restar-animales-granja(0, animList) = animList .
  ceq restar-animales-granja(animARestar, animList animal) = restar-animales-granja(sd(animARestar, 1), animList) if animARestar > 0 .
-
+ eq granja(vacaList, cerdoList, idGranja, hueco-granja(furgo(idGranja, 0, 0, 0, estadoFurgo), false), pedido(idCarniceria, cantCerdo, cantVaca) pedList) = granja(restar-animales-granja(cantVaca, vacaList), restar-animales-granja(cantCerdo, cerdoList), idGranja, hueco-granja(furgo(idGranja, idCarniceria, cantVaca, cantCerdo, reparto), true), pedList) .
 
  var idGranja : Nat .
  var animARestar : Nat .
  vars animList animList' : AnimalList .
+ var vacaList : VacaList .
+ var cerdoList : CerdoList .
  var animal : Animal .
  var pedList : PedidosList .
  var hueco-granja : HuecoGranja .
+ var estadoFurgo : EstadoFurgoneta .
  
  
 
@@ -83,7 +89,7 @@ fmod CARNICERIAS is
  pr GRANJA .
 
  sorts Carniceria EstadoCarniceria ColaClientes HuecoCarniceria LibretaGranjas .
- subsort Granja < LibretaGranjas .
+ subsort Nat < LibretaGranjas .
 
  op libretav : -> LibretaGranjas [ctor] .
  op __ : LibretaGranjas LibretaGranjas -> LibretaGranjas [assoc ctor id: libretav] .
@@ -128,7 +134,7 @@ fmod SISTEMA_CARNICERIAS is
  pr GRANJA .
  pr CARRETERAS .
 
- sorts ListGranja ListCarnicerias ListCarreteras .
+ sorts ListGranja ListCarnicerias ListCarreteras Sistema .
  subsort Granja < ListGranja .
  subsort Carniceria < ListCarnicerias .
  subsort Carretera < ListCarreteras .
@@ -159,7 +165,8 @@ fmod SISTEMA_CARNICERIAS is
  op listaGranja1 : -> ListGranja .
  op listaCarnicerias1 : -> ListCarnicerias .
 
- ops sistema1 .
+ op sistema1 : -> Sistema .
+
  eq pedido1 = pedido(1, 4, 3) .
  eq pedido2 = pedido(2, 4, 3) .
  eq pedido3 = pedido(1, 1, 0) .
@@ -174,8 +181,8 @@ fmod SISTEMA_CARNICERIAS is
  eq furgo2 = furgo(2, 0, 0, 0, esperando) .
  eq granja1 = granja(listaVacaGranja1, listaCerdoGranja1, 1, hueco-granja(fv, true), listaPedidos1) .
  eq granja2 = granja(listaVacaGranja2, listaCerdoGranja2, 2, hueco-granja(fv, true), listaPedidos2) .
- eq libretaGranja1 = granja1 granja2 .
- eq libretaGranja2 = granja1 granja2 .
+ eq libretaGranja1 = 1 2 .
+ eq libretaGranja2 = 1 2 .
  eq cliente1 = cliente(1, 1) .
  eq cliente2 = cliente(0, 1) .
  eq cliente3 = cliente(0, 2) .
