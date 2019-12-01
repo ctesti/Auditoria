@@ -133,7 +133,7 @@ fmod CARNICERIAS is
  ceq cambia-estado(carniceria(idCarniceria, abierta, cantVacuno, cantCerdo, colaClientes, huecoCarniceria, libretaGranjas)) = carniceria(idCarniceria, cerrada, cantVacuno, cantCerdo, colaClientes, huecoCarniceria, libretaGranjas) if colaVacia?(colaClientes) = true .
 
  op entrega-pedido : Carniceria -> Carniceria .
- eq entrega-pedido(carniceria(idCarniceria, estadoCarniceria, cantVacuno, cantCerdo, colaClientes, hueco-carniceria(furgo(idCarniceria, idGranja, cantVacuno', cantCerdo', reparto), true), libretaGranjas)) = carniceria(idCarniceria, estadoCarniceria, cantVacuno + cantVacuno', cantCerdo + cantCerdo', colaClientes, hueco-carniceria(furgo(idCarniceria, idGranja, 0, 0, vuelta), true), borra-granja(libretaGranjas, idGranja)).
+ eq entrega-pedido(carniceria(idCarniceria, estadoCarniceria, cantVacuno, cantCerdo, colaClientes, hueco-carniceria(furgo(idCarniceria, idGranja, cantVacuno', cantCerdo', reparto), true), libretaGranjas)) = carniceria(idCarniceria, estadoCarniceria, cantVacuno + cantVacuno', cantCerdo + cantCerdo', colaClientes, hueco-carniceria(furgo(idCarniceria, idGranja, 0, 0, vuelta), true), borra-granja(libretaGranjas, idGranja)) .
 
  vars cantCerdo cantVacuno cantCerdo' cantVacuno' idCarniceria : Nat .
  var estadoCarniceria : EstadoCarniceria .
