@@ -1,4 +1,4 @@
-*** PRÁCTICA DE NICOLÁS ALCAINE CAMILLI Y CARLOS MARTÍN TESTILLANO
+*** PRÁCTICA DE NICOLÁS ALCAINE CAMILLI Y CARLOS MARTÍN TESTILLANOS
 
 
 fmod PEDIDO is
@@ -8,23 +8,24 @@ fmod PEDIDO is
  op pv : -> Pedido [ctor] .
  op pedido : Nat Nat Nat -> Pedido [ctor] . ***idCarniceria cantVacuno cantCerdo
 
- vars idCarniceria cantVacuno cantCerdo : Nat .
- var pedido : Pedido .
-
-
 endfm
 
 
 fmod FURGONETA is
  sorts Furgo EstadoFurgoneta .
  pr NAT .
+ pr BOOL .
 
  op fv : -> Furgo [ctor] .
  op furgo : Nat Nat Nat Nat EstadoFurgoneta -> Furgo [ctor] . ***idCarniceria idGranja cantVacuno cantCerdo
  ops reparto vuelta esperando : -> EstadoFurgoneta [ctor] .
-
+ op cambiar-a-reparto : Nat Nat Nat Furgo -> Furgo .
+ ceq cambiar-a-reparto(idCarniceria, cantVacuno, cantCerdo, furgo(0, idGranja, 0, 0, estadoFurgo)) 
+        = furgo(idCarniceria, idGranja, cantVacuno, cantCerdo, reparto)
+        if estadoFurgo == esperando .
  vars idCarniceria idGranja cantVacuno cantCerdo : Nat .
- var furgo : Furgo .
+ var furgoneta : Furgo .
+ var estadoFurgo : EstadoFurgoneta .
 
 endfm
 
@@ -51,22 +52,18 @@ fmod GRANJA is
  op restar-animales-granja : Nat AnimalList -> AnimalList .
  op tam : AnimalList -> Nat .
  op granja : VacaList CerdoList Nat HuecoGranja PedidosList -> Granja [ctor] .
+ op quitar-pedido : Granja -> Granja .
 
  eq tam(alistv) = 0 .
  eq tam(animal animList) = s(tam(animList)) .
  eq restar-animales-granja(0, animList) = animList .
  ceq restar-animales-granja(animARestar, animList animal) = restar-animales-granja(sd(animARestar, 1), animList) if animARestar > 0 .
-*** eq granja(vacaList, cerdoList, idGranja, hueco-granja(furgo(idGranja, 0, 0, 0, estadoFurgo), false), pedido(idCarniceria, cantCerdo, cantVaca) pedList) = granja(restar-animales-granja(cantVaca, vacaList), restar-animales-granja(cantCerdo, cerdoList), idGranja, hueco-granja(furgo(idGranja, idCarniceria, cantVaca, cantCerdo, reparto), true), pedList) .
 
- var idGranja : Nat .
  var animARestar : Nat .
- vars animList animList' : AnimalList .
- var vacaList : VacaList .
- var cerdoList : CerdoList .
+ var animList : AnimalList .
  var animal : Animal .
- var pedList : PedidosList .
- var hueco-granja : HuecoGranja .
  var estadoFurgo : EstadoFurgoneta .
+ var granj : Granja .
  
  
 
@@ -158,7 +155,7 @@ fmod CARRETERAS is
  op carretera : Nat Nat Sentido Sentido -> Carretera [ctor] . ***id Granja, idCarniceria, ida(Granja-carniceria), vuelta(carniceria-granja)
 
  op sentidov : -> Sentido [ctor] .
- op __ : Sentido Sentido -> Sentido [ctor id: sentidov] .
+ op __ : Sentido Sentido -> Sentido [assoc ctor id: sentidov] .
  op sentido-pop : Sentido -> Sentido .
  op primero-sentido : Sentido ~> Furgo .
  op inserta-furgo : Furgo Sentido -> Sentido .
@@ -176,7 +173,7 @@ fmod CARRETERAS is
 
 endfm
 
-fmod SISTEMA_CARNICERIAS is
+mod SISTEMA_CARNICERIAS is
  pr CARNICERIAS .
  pr GRANJA .
  pr CARRETERAS .
@@ -240,10 +237,10 @@ fmod SISTEMA_CARNICERIAS is
  eq listaCerdoGranja1 = cerdo cerdo cerdo . 
  eq listaVacaGranja2 = vaca vaca .
  eq listaCerdoGranja2 = cerdo .
- eq furgo1 = furgo(1, 0, 0, 0, esperando) .
- eq furgo2 = furgo(2, 0, 0, 0, esperando) .
- eq granja1 = granja(listaVacaGranja1, listaCerdoGranja1, 1, hueco-granja(fv, true), listaPedidos1) .
- eq granja2 = granja(listaVacaGranja2, listaCerdoGranja2, 2, hueco-granja(fv, true), listaPedidos2) .
+ eq furgo1 = furgo(0, 1, 0, 0, esperando) .
+ eq furgo2 = furgo(0, 2, 0, 0, esperando) .
+ eq granja1 = granja(listaVacaGranja1, listaCerdoGranja1, 1, hueco-granja(furgo1, false), listaPedidos1) .
+ eq granja2 = granja(listaVacaGranja2, listaCerdoGranja2, 2, hueco-granja(furgo2, false), listaPedidos2) .
  eq libretaGranja1 = 1 2 .
  eq libretaGranja2 = 1 2 .
  eq cliente1 = cliente(1, 1) .
@@ -262,15 +259,37 @@ fmod SISTEMA_CARNICERIAS is
  eq listaCarnicerias1 = c1 c2 .
  eq sistema1 = sistema(listaGranja1, listaCarnicerias1, listaCarretera1) .
 
+ op furgo-a-carretera-vuelta : Sistema -> Sistema .
+ eq furgo-a-carretera-vuelta(sistema(granj, carniceria(idCarniceria, estadoCarniceria, cantVacunoCarniceria, cantCerdoCarniceria, colaClientes, hueco-carniceria(furgo(idCarniceria, idGranja, cantVacunoFurgo, cantCerdoFurgo, vuelta), false), idGranja libretaGranjas), carretera(idGranja, idCarniceria, ida, vuelta))) 
+    = sistema(granj, carniceria(idCarniceria, estadoCarniceria, cantVacunoCarniceria, cantCerdoCarniceria, colaClientes, hueco-carniceria(fv, true), idGranja libretaGranjas), carretera(idGranja, idCarniceria, ida, vuelta furgo(idCarniceria, idGranja, cantVacunoFurgo, cantCerdoFurgo, vuelta)) ) .
+ op furgo-a-granja : Sistema -> Sistema .
+ eq furgo-a-granja(sistema(granja(vacaList, cerdoList, idGranja, hueco-granja(fv, true), pedList) listGranja, carniceria(idCarniceria, estadoCarniceria, cantVacunoCarniceria, cantCerdoCarniceria, colaClientes, huecoCarniceria, idGranja libretaGranjas) listCarnicerias, carretera(idGranja, idCarniceria, ida, furgo(idCarniceria, idGranja, cantVacunoFurgo, cantCerdoFurgo, vuelta) vuelta) listCarreteras))
+    = sistema(granja(vacaList, cerdoList, idGranja, hueco-granja(furgo(idCarniceria, idGranja, cantVacunoFurgo, cantCerdoFurgo, esperando), false), pedList) listGranja, carniceria(idCarniceria, estadoCarniceria, cantVacunoCarniceria, cantCerdoCarniceria, colaClientes, huecoCarniceria, idGranja libretaGranjas) listCarnicerias, carretera(idGranja, idCarniceria, ida, vuelta) listCarreteras) .
+ 
+ op borrar-pedido-carniceria : Carniceria -> Carniceria .
+
+ ceq borrar-pedido-carniceria(carniceria(idCarniceria, estadoCarniceria, cantVacunoCarniceria, cantCerdoCarniceria, inserta-cliente(cliente(cantCerdo, cantVaca), colaCliente), huecoCarniceria, idGranja libretaGranjas))
+     = carniceria(idCarniceria, estadoCarniceria, sd(cantVacunoCarniceria, cantVaca), sd(cantCerdoCarniceria, cantCerdo), colaCliente, huecoCarniceria, idGranja libretaGranjas)
+     if cantVacunoCarniceria >= cantVaca /\ cantCerdoCarniceria >= cantCerdo .
 
  op furgo-a-carretera : Sistema -> Sistema .
- eq furgo-a-carretera(sistema(granja(vacaList, cerdoList, idGranja, hueco-granja(furgo(idGranja, idCarniceria, cantVacunoFurgo, cantCerdoFurgo, reparto), true), pedido(idCarniceria, cantCerdoPedido, cantVacunoPedido) pedList) listGranja, carniceria(idCarniceria, estadoCarniceria, cantVacunoCarniceria, cantCerdoCarniceria, colaClientes, huecoCarniceria, idGranja libretaGranjas) listCarnicerias, carretera(idGranja, idCarniceria, ida, vuelta) listCarreteras)) = sistema(granja(vacaList, cerdoList, idGranja, hueco-granja(furgo(idGranja, idCarniceria, cantVacunoFurgo, cantCerdoFurgo, reparto), false), pedido(idCarniceria, cantCerdoPedido, cantVacunoPedido) pedList) listGranja, carniceria(idCarniceria, estadoCarniceria, cantVacunoCarniceria, cantCerdoCarniceria, colaClientes, huecoCarniceria, idGranja libretaGranjas) listCarnicerias, carretera(idGranja, idCarniceria, ida furgo(idGranja, idCarniceria, cantVacunoFurgo, cantCerdoFurgo, reparto), vuelta) listCarreteras) .
+ eq furgo-a-carretera(sistema(granja(vacaList, cerdoList, idGranja, hueco-granja(furgo(idCarniceria, idGranja, cantVacunoFurgo, cantCerdoFurgo, reparto), true), pedido(idCarniceria, cantCerdoPedido, cantVacunoPedido) pedList) listGranja, carniceria(idCarniceria, estadoCarniceria, cantVacunoCarniceria, cantCerdoCarniceria, colaClientes, huecoCarniceria, idGranja libretaGranjas) listCarnicerias, carretera(idGranja, idCarniceria, ida, vuelta) listCarreteras)) = sistema(granja(vacaList, cerdoList, idGranja, hueco-granja(furgo(idGranja, idCarniceria, cantVacunoFurgo, cantCerdoFurgo, reparto), false), pedido(idCarniceria, cantCerdoPedido, cantVacunoPedido) pedList) listGranja, carniceria(idCarniceria, estadoCarniceria, cantVacunoCarniceria, cantCerdoCarniceria, colaClientes, huecoCarniceria, idGranja libretaGranjas) listCarnicerias, carretera(idGranja, idCarniceria, ida furgo(idGranja, idCarniceria, cantVacunoFurgo, cantCerdoFurgo, reparto), vuelta) listCarreteras) .
 
  op furgo-a-carniceria : Sistema -> Sistema .
  eq furgo-a-carniceria(sistema(granja(vacaList, cerdoList, idGranja, huecoGranja, pedido(idCarniceria, cantCerdoPedido, cantVacunoPedido) pedList) listGranja, carniceria(idCarniceria, estadoCarniceria, cantVacunoCarniceria, cantCerdoCarniceria, colaClientes, hueco-carniceria(furgo(idGranja, idCarniceria, cantVacunoFurgo, cantCerdoFurgo, reparto), false), idGranja libretaGranjas) listCarnicerias, carretera(idGranja, idCarniceria, furgo(idGranja, idCarniceria, cantVacunoFurgo, cantCerdoFurgo, reparto) ida, vuelta) listCarreteras)) = sistema(granja(vacaList, cerdoList, idGranja, huecoGranja, pedido(idCarniceria, cantCerdoPedido, cantVacunoPedido) pedList) listGranja, carniceria(idCarniceria, estadoCarniceria, cantVacunoCarniceria, cantCerdoCarniceria, colaClientes, hueco-carniceria(furgo(idGranja, idCarniceria, cantVacunoFurgo, cantCerdoFurgo, reparto), true), idGranja libretaGranjas) listCarnicerias, carretera(idGranja, idCarniceria, ida, vuelta) listCarreteras) .
 
-endfm 
+ crl [furgo-reparto] : granja(vacaList, cerdoList, idGranja, hueco-granja(furgoneta, false), pedido(idCarniceria, cantVaca, cantCerdo) pedList) 
+                        => granja(restar-animales-granja(cantVaca, vacaList), restar-animales-granja(cantCerdo, cerdoList), idGranja, hueco-granja(cambiar-a-reparto(idCarniceria, cantVaca, cantCerdo, furgoneta), true), pedList)
+                        if tam(vacaList) >= cantVaca /\ tam(cerdoList) >= cantCerdo .
+ 
+ var granj : Granja .
+ vars cantCerdo cantVaca : Nat .
+ var furgoneta : Furgo .
+ var colaCliente : ColaClientes .
+endm 
 
+*** EJERCICIO 9
+*** rew granja1 .
 
 *** EJERCICIO 10
 *** red(furgo-a-carretera(sistema(granja(vaca, cerdo, 1, hueco-granja(furgo(1, 1, 2, 2, reparto), true), pedido(1, 2, 2) plistv) listGranjav, carniceria(1, abierta, 0, 0, colav, hueco-carniceria(fv, false), 1 libretav) listCarniceriasv, carretera(1, 1, sentidov, sentidov) listCarreterasv))) .
@@ -280,6 +299,15 @@ endfm
 
 *** EJERCICIO 12
 *** red(entrega-pedido(carniceria(1, abierta, 0, 0, colav, hueco-carniceria(furgo(1, 1, 2, 2, reparto), true), 1 2 3))) .
+
+*** EJERCICIO 13
+*** red(furgo-a-carretera-vuelta(sistema(granja(vaca, cerdo, 1, hueco-granja(furgo(1, 1, 2, 2, reparto), true), pedido(1, 2, 2) plistv) listGranjav, carniceria(1, abierta, 0, 0, colav, hueco-carniceria(furgo(1, 1, 2, 2, vuelta), false), 1 libretav) listCarniceriasv, carretera(1, 1, sentidov, sentidov) listCarreterasv))) .
+
+*** EJERCICIO 14
+*** red(furgo-a-granja(sistema(granja(vaca, cerdo, 1, hueco-granja(fv, true), pedido(1, 2, 2) plistv) listGranjav, carniceria(1, abierta, 0, 0, colav, hueco-carniceria(fv, true), 1 libretav) listCarniceriasv, carretera(1, 1, sentidov, furgo(1, 1, 2, 2, vuelta)) listCarreterasv))) .
+
+*** EJERCICIO 15
+*** red(borrar-pedido-carniceria(carniceria(1, abierta, 5, 5, colaClientes1, hueco-carniceria(fv, true), libretaGranja1))) .
 
 *** EJERCICIO 16
 *** red(cambia-estado(carniceria(1, abierta, 0, 0, colav, hueco-carniceria(fv, true), libretav))) .
