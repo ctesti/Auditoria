@@ -1,0 +1,89 @@
+
+
+
+fmod PERSONA is
+ pr BOLSA .
+ sort Persona Edad Estado Dinero Bebida Entrada  .
+
+
+ vars relajado ebrio cansado_contento humillado satisfecho indiferente : Estado .
+ vars relaciones puerta : Persona .
+
+
+endfm
+
+fmod CONJ_PERSONAS is
+ pr PERSONA .
+ sort Conj_personas .
+ subsort Persona < Conj_personas .
+
+
+endfm
+
+fmod BOLSA is
+ pr NAT .
+ sort Bolsa .
+
+ op bolsav : -> Bolsa [ctor] .
+ op bolsa : Nat Nat Nat -> Bolsa [ctor] . *** hielo, refresco, alcohol
+
+ vars hielo refresco alcohol : Nat . 
+
+endfm
+
+
+fmod COLA is
+ pr PERSONA .
+ sort Cola .
+ subsort Persona < Cola .
+
+ op colav : -> Cola [ctor] . 
+ op __ : Cola Cola -> Cola [ctor id: colav] .
+ op cola-pop : Cola -> Cola .
+ op primero-cola : Cola ~> Persona .
+ op inserta-persona : Persona Cola -> Cola [ctor] .
+ op colaVacia? : Cola -> Bool .
+
+ eq cola-pop(colav) = colav .
+ eq cola-pop(persona cola) = cola .
+ eq primero-cola(persona cola) = persona .
+ eq inserta-persona(persona, colav) = persona .
+ eq inserta-persona(persona, cola) = cola persona .
+ eq colaVacia?(colav) = true .
+ eq colaVacia?(cola) = false [owise] .
+
+endfm
+
+
+fmod TIENDA is
+ pr COLA .
+ sort Tienda Estado . *** La tienda solo tiene bolsas, ya que siempre tendrá las mismas unidades de cada producto
+
+ op tiendav : -> Tienda [ctor] .
+ op tienda : Estado Nat Nat Cola -> Tienda [ctor] . *** estado, bolsas, precio, cola
+
+ vars abierta cerrada : Estado .
+ var bolsas precio : Nat .
+
+ *** en la regla de comprar, restar 1 al número de bolsas y sumar 1 a cada producto de la bolsa de la persona
+
+endfm
+
+fmod PLAZA is 
+ pr CONJ_PERSONAS .
+ sort Plaza Billy_entradas . ***Billy_entradas es un natural con el número de entradas que tiene Billy
+ 
+
+
+endfm
+
+fmod LOCAL is 
+
+
+endfm 
+
+
+fmod RECREATIVOS is
+
+
+endfm 
